@@ -2,6 +2,8 @@ import datetime
 from typing import Optional
 
 import discord
+import random
+
 from PIL import Image, ImageDraw, ImageFont
 from discord.ext import commands
 
