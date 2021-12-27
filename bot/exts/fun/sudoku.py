@@ -43,8 +43,6 @@ class Sudoku(commands.Cog):
         return position[0] * 100 + 20, position[1] * 100 - 5
 
     @commands.group(aliases=["s"])
-    @commands.command()
-    @commands.max_concurrency(1, per=commands.BucketType.user)
     async def sudoku(self, ctx: commands.Context) -> None:
         """
         Play Sudoku with the bot!
