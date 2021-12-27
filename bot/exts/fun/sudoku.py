@@ -2,12 +2,13 @@ import datetime
 from typing import Optional
 
 import discord
-import random
-
 from PIL import Image, ImageDraw, ImageFont
 from discord.ext import commands
 
 from bot.bot import Bot
+
+# import random
+
 
 BACKGROUND = (242, 243, 244)
 BLACK = 0
@@ -16,8 +17,8 @@ NUM_FONT = ImageFont.truetype("bot/resources/fun/Roboto-Medium.ttf", 99)
 draw = ImageDraw.Draw(grid)
 
 
-class SudokuGrid(commands.Cog):
-    """Generate the Sudoku grid."""
+class Sudoku(commands.Cog):
+    """Cog for the Sudoku game."""
 
     def __init__(self, bot: Bot):
         self.bot = bot
@@ -25,9 +26,9 @@ class SudokuGrid(commands.Cog):
         self.solution = None
         self.draw = draw
         self.running: bool = False
-        self.claimee: Optional[discord.Member] = None
+        self.invoker: Optional[discord.Member] = None
         self.started_at: Optional[datetime.datetime] = None
-        self.difficulty: str = "Normal" # enum class?
+        self.difficulty: str = "Normal"  # enum class?
 
     @staticmethod
     def draw_num(digit: int, position: tuple[int, int]) -> None:
@@ -42,6 +43,8 @@ class SudokuGrid(commands.Cog):
         return position[0] * 100 + 20, position[1] * 100 - 5
 
     @commands.group(aliases=["s"])
+    @commands.command()
+    @commands.max_concurrency(1, per=commands.BucketType.user)
     async def sudoku(self, ctx: commands.Context) -> None:
         """
         Play Sudoku with the bot!
@@ -56,22 +59,22 @@ class SudokuGrid(commands.Cog):
             await self.start(ctx)
 
     @sudoku.command()
-    async def start(self, ctx):
+    async def start(self, ctx: commands.Context) -> None:
         """Start a sudoku game."""
         if self.running:
             await ctx.send("A sudoku game is already running!")
             return
         self.running = True
-        self.claimee = ctx.author
+        self.invoker = ctx.author
         self.started_at = datetime.datetime.now()
         # generate a sudoku board
         await ctx.send("Started a sudoku game")
 
     @sudoku.command(aliases=["end", "stop"])
-    async def finish(self, ctx):
+    async def finish(self, ctx: commands.Context) -> None:
         """End a sudoku game."""
         if self.running:
-            if ctx.author == self.claimee:
+            if ctx.author == self.invoker:
                 self.running = False
                 await ctx.send("Ended the current game")
             else:
@@ -80,18 +83,18 @@ class SudokuGrid(commands.Cog):
             await ctx.send("There is no sudoku game running!")
 
     @sudoku.command(aliases=["who", "information", "score"])
-    async def info(self, ctx):
+    async def info(self, ctx: commands.Context) -> None:
         """Send info about the currently running sudoku game."""
         if not self.running:
             await ctx.send("There is no running game.")
             return
         now = datetime.datetime.now()
         embed = discord.Embed(title="Sudoku Game Information")
-        embed.add_field(name="Player", value=self.claimee.name)
+        embed.add_field(name="Player", value=self.invoker.name)
         embed.add_field(name="Current time", value=(now - self.started_at))
         embed.add_field(name="Progress", value="N/a")  # add in this variable
         embed.add_field(name="Difficulty", value=self.difficulty)
-        embed.set_author(name=self.claimee.name, icon_url=self.claimee.display_avatar.url)
+        embed.set_author(name=self.invoker.name, icon_url=self.invoker.display_avatar.url)
         await ctx.send(embed=embed)
 
 
