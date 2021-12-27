@@ -5,28 +5,9 @@ from bot.bot import Bot
 
 BACKGROUND = (242, 243, 244)
 BLACK = 0
-height = 601
-width = 601
-grid = Image.new(mode='RGB', size=(height, width), color=BACKGROUND)
+grid = Image.open("bot/resources/fun/sudoku_template.png")
 NUM_FONT = ImageFont.truetype(r"bot/resources/fun/Roboto-Medium.ttf", 99)
-
 draw = ImageDraw.Draw(grid)
-y_start = 0
-y_end = grid.height
-
-for x in range(0, grid.width, grid.width // 6):
-    line = ((x, y_start), (x, y_end))
-    draw.line(line, fill=0, width=2)
-
-for y in range(0, grid.height, grid.width // 6):
-    line = ((0, y), (grid.width, y))
-    draw.line(line, fill=0, width=2)
-
-for x in range(0, grid.width, grid.width // 2):
-    draw.line(((x, 0), (x, grid.height)), fill=0, width=4)
-
-for y in range(0, grid.width, grid.width // 3):
-    draw.line(((0, y), (grid.width, y)), fill=0, width=4)
 
 
 class SudokuGrid(commands.Cog):
@@ -64,7 +45,7 @@ class SudokuGrid(commands.Cog):
         """
         self.draw_num(5, self.index_to_coord((5, 5)))
         self.draw_num(1, self.index_to_coord((3, 1)))
-        grid.show()
+grid.show()
 
 
 # class Sudoku(commands.Cog):
