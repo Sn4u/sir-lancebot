@@ -1,3 +1,5 @@
+import random
+
 from PIL import Image, ImageDraw, ImageFont
 from discord.ext import commands
 
@@ -31,6 +33,28 @@ class SudokuGrid(commands.Cog):
         """..."""
         return position[0] * 100 + 20, position[1] * 100 - 5
 
+    def generate_solution(self, grid: list) -> bool:
+        """Generates a full solution with backtracking."""
+        number_list = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        for i in range(0, 81):
+            row = i // 9
+            col = i % 9
+            if grid[row][col] == 0:
+                random.shuffle(number_list)
+                for number in number_list:
+                    if self.valid_location(grid, row, col, number):
+                        self.path.append((number, row, col))
+                        grid[row][col] = number
+                        if not self.find_empty_square(grid):
+                            return True
+                        else:
+                            if self.generate_solution(grid):
+                                # if the grid is full
+                                return True
+                break
+
+            grid[row][col] = 0
+
     @commands.command()
     @commands.max_concurrency(1, per=commands.BucketType.user)
     async def sudoku(self, ctx: commands.Context) -> None:
@@ -45,7 +69,7 @@ class SudokuGrid(commands.Cog):
         """
         self.draw_num(5, self.index_to_coord((5, 5)))
         self.draw_num(1, self.index_to_coord((3, 1)))
-grid.show()
+        grid.show()
 
 
 # class Sudoku(commands.Cog):
