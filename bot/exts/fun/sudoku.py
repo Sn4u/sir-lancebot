@@ -86,10 +86,10 @@ class Sudoku(commands.Cog):
         if not self.running:
             await ctx.send("There are no currently running games!")
             return
-        now = datetime.datetime.now()
+        current_time = datetime.datetime.now()
         info_embed = discord.Embed(title="Sudoku Game Information", color=Colours.grass_green)
         info_embed.add_field(name="Player", value=self.invoker.name)
-        info_embed.add_field(name="Current Time", value=(now - self.started_at))
+        info_embed.add_field(name="Current Time", value=(current_time - self.started_at))
         info_embed.add_field(name="Progress", value="N/A")  # add in this variable
         info_embed.add_field(name="Difficulty", value=self.difficulty)
         info_embed.set_author(name=self.invoker.name, icon_url=self.invoker.display_avatar.url)
