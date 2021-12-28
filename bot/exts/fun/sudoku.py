@@ -1,5 +1,4 @@
 import datetime
-from typing import Optional
 
 import discord
 from PIL import Image, ImageDraw, ImageFont
@@ -17,7 +16,9 @@ NUM_FONT = ImageFont.truetype("bot/resources/fun/Roboto-Medium.ttf", 99)
 
 
 class SudokuGame:
-    def __init__(self, ctx, difficulty: str):
+    """Class that contains information and regarding Sudoku game."""
+
+    def __init__(self, ctx: commands.Context, difficulty: str):
         self.ctx = ctx
         self.image = Image.open(SUDOKU_TEMPLATE_PATH)
         self.solution = self.generate_board()
@@ -52,7 +53,8 @@ class SudokuGame:
         pass
 
     @property
-    def solved(self):
+    def solved(self) -> bool:
+        """Check if the puzzle has been solved."""
         return self.solution == self.puzzle
 
 
@@ -120,7 +122,7 @@ class Sudoku(commands.Cog):
 class SudokuView(discord.ui.View):
     """A set of buttons to control a sudoku game."""
 
-    def __init__(self, ctx):
+    def __init__(self, ctx: commands.Context):
         super(SudokuView, self).__init__()
         self.ctx = ctx
         # self.children[0]
