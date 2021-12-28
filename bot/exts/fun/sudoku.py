@@ -7,9 +7,6 @@ from discord.ext import commands
 
 from bot.bot import Bot
 
-# import random
-
-
 BACKGROUND = (242, 243, 244)
 BLACK = 0
 grid = Image.open("bot/resources/fun/sudoku_template.png")
@@ -29,6 +26,7 @@ class Sudoku(commands.Cog):
         self.invoker: Optional[discord.Member] = None
         self.started_at: Optional[datetime.datetime] = None
         self.difficulty: str = "Normal"  # enum class?
+        self.last_hint_time: Optional[datetime] = None
 
     @staticmethod
     def draw_num(digit: int, position: tuple[int, int]) -> None:
@@ -43,8 +41,6 @@ class Sudoku(commands.Cog):
         return position[0] * 100 + 20, position[1] * 100 - 5
 
     @commands.group(aliases=["s"])
-    @commands.command()
-    @commands.max_concurrency(1, per=commands.BucketType.user)
     async def sudoku(self, ctx: commands.Context) -> None:
         """
         Play Sudoku with the bot!
@@ -59,7 +55,7 @@ class Sudoku(commands.Cog):
             await self.start(ctx)
 
     @sudoku.command()
-    async def start(self, ctx: commands.Context) -> None:
+    async def start(self, ctx: commands.Context, difficulty: Optional[str] = "Normal") -> None:
         """Start a sudoku game."""
         if self.running:
             await ctx.send("A sudoku game is already running!")
@@ -96,6 +92,32 @@ class Sudoku(commands.Cog):
         embed.add_field(name="Difficulty", value=self.difficulty)
         embed.set_author(name=self.invoker.name, icon_url=self.invoker.display_avatar.url)
         await ctx.send(embed=embed)
+
+
+class SudokuView(discord.ui.View):
+    """A set of buttons to control a sudoku game."""
+    def __init__(self, ctx):
+        super(SudokuView, self).__init__()
+        self.ctx = ctx
+        # self.children[0]
+
+    @discord.ui.button(style=discord.ButtonStyle.red, label="End game")
+    async def end_button(self, _: discord.ui.Button, interaction: discord.Interaction) -> None:
+        """Button that ends the current game."""
+        await self.ctx.invoke(self.ctx.bot.get_command("sudoku finish"))
+
+    @discord.ui.button(style=discord.ButtonStyle.green, label="Hint")
+    async def hint_button(self, _: discord.ui.Select, interaction: discord.Interaction) -> discord.Message:
+        """Button that fills in one square on the sudoku board."""
+
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        """Check to ensure that the interacting user is the user who invoked the command."""
+        if interaction.user != self.ctx.author:
+            embed = discord.Embed(description="Sorry, but this interaction can only be used by the original author.")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return False
+        return True
 
 
 def setup(bot: Bot) -> None:
